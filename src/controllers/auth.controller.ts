@@ -1,13 +1,17 @@
+
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+
 import { Request, Response } from 'express';
 
 import User from '../models/user.model';
 
+import { loginSchema, registerSchema } from '../zod/auth.schema';
+
 
 export const registerUser = async (req: Request, res: Response) => {
     try {
-        const { email, password, name } = req.body;
+        const { email, password, name } = registerSchema.parse(req.body);
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -43,7 +47,7 @@ export const registerUser = async (req: Request, res: Response) => {
 
 export const loginUser = async (req: Request, res: Response) => {
     try {
-        const { email, password } = req.body;
+        const { email, password } = loginSchema.parse(req.body);
 
         const existingUser = await User.findOne({ email });
         if (!existingUser) {
