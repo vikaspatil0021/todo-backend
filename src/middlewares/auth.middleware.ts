@@ -1,16 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-type User = {
-    id: string;
-    email: string;
-}
 
-interface AuthRequest extends Request {
-    user?: User;
-}
-
-export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const authenticate = (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies.token;
 
     if (!token) {
@@ -19,10 +11,11 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as User;
+        const decoded = jwt.verify(token, process.env.TOKEN_SECRET_KEY!) as { id: string; email: string; };
         req.user = decoded;
         next();
-    } catch (err) {
+    } catch (err: any) {
+        console.log(err.message)
         res.status(403).json({ message: "Invalid or expired token" });
     }
 };
