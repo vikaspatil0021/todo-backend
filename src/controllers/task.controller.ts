@@ -6,6 +6,8 @@ import User from '../models/user.model';
 
 import { createTaskSchema, updateTaskSchema } from '../zod/task.schema';
 
+import { logAction } from '../utils/logger';
+
 
 export const getAllTasks = async (req: Request, res: Response) => {
     try {
@@ -35,6 +37,12 @@ export const createTask = async (req: Request, res: Response) => {
             updatedBy: req.user?.id
         });
 
+        await logAction({
+            actionType: "CREATE",
+            performedBy: req.user?.id!,
+            description: `Task "${task.title}" was created by (${req.user?.email}).`,
+        });
+
         res.status(201).json(task);
 
     } catch (error: any) {
@@ -59,13 +67,37 @@ export const updateTask = async (req: Request, res: Response) => {
 
         if (!updatedTaskData) {
             const task = await Task.findById(id);
-            
+
             res.status(409).json({
                 message: "Conflict detected",
                 clientTask: data,
                 serverTask: task
             });
             return;
+        }
+
+        if (data.assignedUser) {
+            await logAction({
+                actionType: "ASSIGN",
+                performedBy: req.user?.id!,
+                description: `Task "${updatedTaskData.title}" was manually assigned to ${data.assignedUser} by (${req.user?.email}).`,
+            });
+        }
+
+        if (data.status) {
+            await logAction({
+                actionType: "DRAG_AND_DROP",
+                performedBy: req.user?.id!,
+                description: `Task "${updatedTaskData.title}" was moved to "${data.status}" by (${req.user?.email}).`,
+            });
+        }
+
+        if (!data.assignedUser && !data.status) {
+            await logAction({
+                actionType: "UPDATE",
+                performedBy: req?.user?.id!,
+                description: `Task "${updatedTaskData.title}" was updated by(${req.user?.email}).`,
+            });
         }
 
         res.status(200).json(updatedTaskData);
@@ -81,7 +113,14 @@ export const updateTask = async (req: Request, res: Response) => {
 export const deleteTask = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        await Task.findByIdAndDelete(id);
+        const task = await Task.findByIdAndDelete(id);
+
+        await logAction({
+            actionType: "DELETE",
+            performedBy: req.user?.id!,
+            description: `Task "${task?.title}" was deleted by (${req.user?.email}).`,
+        });
+
         res.json({ message: 'Task deleted' });
 
     } catch (error: any) {
@@ -123,6 +162,12 @@ export const smartAssignTask = async (req: Request, res: Response) => {
             { assignedUser: userWithLeastTasks, updatedAt: new Date(), updatedBy: req.user?.id },
             { new: true }
         );
+
+        await logAction({
+            actionType: "ASSIGN",
+            performedBy: req?.user?.id!,
+            description: `Task "${task?.title}" was automatically assigned to ${userWithLeastTasks} using smart assignment logic by (${req?.user?.email}).`,
+        });
 
         res.status(200).json(task);
     } catch (error: any) {
