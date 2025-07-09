@@ -95,17 +95,19 @@ export const loginUser = async (req: Request, res: Response) => {
 
 
 export const logoutUser = async (req: Request, res: Response) => {
-    res.clearCookie('token', {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none',
-    });
 
     await logAction({
         actionType: "LOGOUT",
         performedBy: req.user?.id!,
         description: `User (${req.user?.email}) logged out.`,
     });
-    
+
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+    });
+
+
     res.status(200).json({ success: true });
 };
