@@ -2,8 +2,19 @@ import { ObjectId } from 'mongoose';
 
 import Log from '../models/log.model';
 
+type ActionType =
+    | 'REGISTER'
+    | 'LOGIN'
+    | 'LOGOUT'
+    | 'READ'
+    | 'CREATE'
+    | 'UPDATE'
+    | 'DELETE'
+    | 'ASSIGN'
+    | 'DRAG_AND_DROP';
+
 type LogActionParams = {
-    actionType: string;
+    actionType: ActionType;
     performedBy: ObjectId;
     description: string;
 }

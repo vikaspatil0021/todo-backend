@@ -14,7 +14,7 @@ const actionTypes = [
 
 const logSchema = new mongoose.Schema({
     actionType: { type: String, enum: actionTypes, required: true },
-    performedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    performedBy: { type: mongoose.Types.ObjectId, ref: 'User' },
     description: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },
 });

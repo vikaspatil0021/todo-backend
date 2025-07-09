@@ -1,5 +1,7 @@
-import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { ObjectId } from "mongoose";
+
+import { Request, Response, NextFunction } from "express";
 
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
@@ -11,7 +13,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.TOKEN_SECRET_KEY!) as { id: string; email: string; };
+        const decoded = jwt.verify(token, process.env.TOKEN_SECRET_KEY!) as { id: ObjectId; email: string; };
         req.user = decoded;
         next();
     } catch (err: any) {
