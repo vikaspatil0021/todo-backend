@@ -7,7 +7,7 @@ import { connectDB } from './config/mongodb';
 
 import authRoutes from './routes/auth.routes';
 import taskRoutes from './routes/task.routes';
-// import logRoutes from './routes/log.routes';
+import logRoutes from './routes/log.routes';
 
 import { authenticate } from './middlewares/auth.middleware';
 
@@ -32,6 +32,6 @@ app.use('/api/auth', authRoutes);
 app.use(authenticate); //verify token
 
 app.use('/api/task', taskRoutes);
-// app.use('/api/logs', logRoutes);
+app.use('/api/logs', logRoutes);
 
 export default app;
