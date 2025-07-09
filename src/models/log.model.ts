@@ -4,7 +4,6 @@ const actionTypes = [
     'REGISTER',
     'LOGIN',
     'LOGOUT',
-    'READ',
     'CREATE',
     'UPDATE',
     'DELETE',

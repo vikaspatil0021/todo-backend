@@ -8,6 +8,8 @@ import User from '../models/user.model';
 
 import { loginSchema, registerSchema } from '../zod/auth.schema';
 
+import { logAction } from '../utils/logger';
+
 
 export const registerUser = async (req: Request, res: Response) => {
     try {
@@ -34,6 +36,12 @@ export const registerUser = async (req: Request, res: Response) => {
             secure: true,
             sameSite: 'none',
             maxAge: 24 * 60 * 60 * 1000 // 1 day
+        });
+
+        await logAction({
+            actionType: "REGISTER",
+            performedBy: user.id,
+            description: `User ${user.name} (${user.email}) registered an account.`,
         });
 
         res.status(201).json({ success: true });
@@ -70,6 +78,12 @@ export const loginUser = async (req: Request, res: Response) => {
             maxAge: 24 * 60 * 60 * 1000 // 1 day
         });
 
+        await logAction({
+            actionType: "LOGIN",
+            performedBy: existingUser.id,
+            description: `User ${existingUser.name} (${existingUser.email}) logged in.`,
+        });
+
         res.status(200).json({ success: true });
 
     } catch (error: any) {
@@ -80,11 +94,18 @@ export const loginUser = async (req: Request, res: Response) => {
 };
 
 
-export const logoutUser = (req: Request, res: Response) => {
+export const logoutUser = async (req: Request, res: Response) => {
     res.clearCookie('token', {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
     });
+
+    await logAction({
+        actionType: "LOGOUT",
+        performedBy: req.user?.id!,
+        description: `User (${req.user?.email}) logged out.`,
+    });
+    
     res.status(200).json({ success: true });
 };

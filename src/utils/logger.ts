@@ -6,7 +6,6 @@ type ActionType =
     | 'REGISTER'
     | 'LOGIN'
     | 'LOGOUT'
-    | 'READ'
     | 'CREATE'
     | 'UPDATE'
     | 'DELETE'
