@@ -11,6 +11,20 @@ import { loginSchema, registerSchema } from '../zod/auth.schema';
 import { logAction } from '../utils/logger';
 
 
+export const checkUser = (req: Request, res: Response) => {
+
+    const user = req.user;
+    if (!user) {
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+    }
+
+    res.status(200).json({
+        success: true,
+        user,
+    });
+};
+
 export const registerUser = async (req: Request, res: Response) => {
     try {
         const { email, password, name } = registerSchema.parse(req.body);
