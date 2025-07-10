@@ -2,6 +2,8 @@ import { ObjectId } from 'mongoose';
 
 import Log from '../models/log.model';
 
+import { getSocket } from '../config/socketInstance';
+
 type ActionType =
     | 'REGISTER'
     | 'LOGIN'
@@ -20,11 +22,14 @@ type LogActionParams = {
 
 export const logAction = async ({ actionType, performedBy, description }: LogActionParams) => {
     try {
-        await Log.create({
+        const log = await Log.create({
             actionType,
             performedBy,
             description,
         });
+
+        getSocket().emit('log:created', log);
+
     } catch (err: any) {
         console.error('Failed to log action:', err?.message);
     }

@@ -8,6 +8,8 @@ import { createTaskSchema, updateTaskSchema } from '../zod/task.schema';
 
 import { logAction } from '../utils/logger';
 
+import { getSocket } from '../config/socketInstance';
+
 
 export const getAllTasks = async (req: Request, res: Response) => {
     try {
@@ -42,6 +44,9 @@ export const createTask = async (req: Request, res: Response) => {
             performedBy: req.user?.id!,
             description: `Task "${task.title}" was created by (${req.user?.email}).`,
         });
+
+
+        getSocket().emit('task:created', task);
 
         res.status(201).json(task);
 
@@ -100,6 +105,9 @@ export const updateTask = async (req: Request, res: Response) => {
             });
         }
 
+
+        getSocket().emit('task:updated', updatedTaskData);
+
         res.status(200).json(updatedTaskData);
 
     } catch (error: any) {
@@ -120,6 +128,9 @@ export const deleteTask = async (req: Request, res: Response) => {
             performedBy: req.user?.id!,
             description: `Task "${task?.title}" was deleted by (${req.user?.email}).`,
         });
+
+
+        getSocket().emit('task:deleted', task);
 
         res.json({ message: 'Task deleted' });
 
@@ -168,6 +179,9 @@ export const smartAssignTask = async (req: Request, res: Response) => {
             performedBy: req?.user?.id!,
             description: `Task "${task?.title}" was automatically assigned to ${userWithLeastTasks} using smart assignment logic by (${req?.user?.email}).`,
         });
+
+
+        getSocket().emit('task:updated', task);
 
         res.status(200).json(task);
     } catch (error: any) {

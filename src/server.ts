@@ -1,15 +1,13 @@
-import http from 'http';
-import { Server } from 'socket.io';
 import app from './app';
+
+import http from 'http';
+import { initSocket } from './config/socketInstance';
 
 const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
 
-const io = new Server(server, {
-  cors: {
-    origin: "*"
-  }
-});
+
+initSocket(server);
 
 
 server.listen(PORT, () => {
