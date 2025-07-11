@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { z } from 'zod';
 
 export const createTaskSchema = z.object({
@@ -24,3 +25,15 @@ export const createTaskSchema = z.object({
 
 
 export const updateTaskSchema = createTaskSchema.partial();
+
+
+export interface TaskType {
+    _id: Types.ObjectId;
+    title: string;
+    description: string | null | undefined;
+    assignedUser: Types.ObjectId | undefined;
+    status: 'Todo' | 'In Progress' | 'Done';
+    priority: 'High' | 'Medium' | 'Low';
+    updatedBy: Types.ObjectId | undefined;
+    updatedAt: NativeDate | undefined;
+}

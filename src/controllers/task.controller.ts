@@ -4,18 +4,29 @@ import { Request, Response } from 'express';
 import Task from '../models/task.model';
 import User from '../models/user.model';
 
-import { createTaskSchema, updateTaskSchema } from '../zod/task.schema';
+import { createTaskSchema, TaskType, updateTaskSchema } from '../zod/task.schema';
 
 import { logAction } from '../utils/logger';
 
 import { getSocket } from '../config/socketInstance';
 
+type GetTasks = { 'todo': TaskType[], "in progress": TaskType[], "done": TaskType[] }
+
+type Field = keyof GetTasks;
 
 export const getAllTasks = async (req: Request, res: Response) => {
     try {
-        const tasks = await Task.find()
+        const result = await Task.find()
             .populate('assignedUser', 'name email')
             .populate('updatedBy', 'name email');
+
+        const tasks = { 'todo': [], "in progress": [], "done": [] } as GetTasks
+
+        result.forEach((ele) => {
+
+            const field = ele.status.toLowerCase() as Field;
+            tasks[field].push(ele as TaskType);
+        })
 
         res.status(200).json(tasks);
 
